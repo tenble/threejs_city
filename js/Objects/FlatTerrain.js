@@ -13,7 +13,7 @@
       texture = THREE.ImageUtils.loadTexture('images/Asphalt256x256.jpg');
       texture.repeat.set(500, 500);
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-      mat = new THREE.MeshBasicMaterial({
+      mat = new THREE.MeshPhongMaterial({
         color: 0xFFFFFF,
         map: texture
       });
