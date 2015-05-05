@@ -12,33 +12,30 @@
 
     World.prototype['$container'] = $('body');
 
-    World.prototype.renderer = null;
-
-    World.prototype.camera = null;
-
-    World.prototype.mainScene = null;
-
     World.prototype.clock = new THREE.Clock();
+
+    World.prototype.renderer = void 0;
+
+    World.prototype.camera = void 0;
+
+    World.prototype.mainScene = void 0;
+
+    World.prototype.city = void 0;
 
     World.prototype.mainSceneObjects = [];
 
     function World() {
-      var city, controls, light, objRef, render;
+      var light, objRef, render;
       this.renderer = new THREE.WebGLRenderer();
       this.camera = new THREE.PerspectiveCamera(this.VIEW_ANGLE, this.WIDTH / this.HEIGHT, this.NEAR, this.FAR);
       this.mainScene = new THREE.Scene();
-      this.camera.position.y = 3000;
-      controls = new THREE.FirstPersonControls(this.camera);
-      controls.movementSpeed = 1000;
-      controls.lookSpeed = 0.1;
-      controls.target = new THREE.Vector3(0, 0, 0);
-      this.camera.lookAt(controls.target);
+      this.setPrimaryView();
       this.mainScene.add(this.camera);
       this.renderer.setSize(this.WIDTH, this.HEIGHT);
       this.$container.append(this.renderer.domElement);
-      city = new City(15, 15, 50, 5, 25, 40, 20, 100, 25, 40);
-      this.mainSceneObjects.push(city);
-      this.mainScene.add(city.getSceneObject());
+      this.city = new City(16, 16, 50, 10, 25, 40, 20, 100, 25, 40, this.camera);
+      this.mainSceneObjects.push(this.city);
+      this.mainScene.add(this.city.getSceneObject());
       light = new THREE.AmbientLight(0x404040);
       this.mainScene.add(light);
       objRef = this;
@@ -50,11 +47,33 @@
           object = _ref[_i];
           object.renderSceneObject();
         }
-        controls.update(objRef.clock.getDelta());
         return objRef.renderer.render(objRef.mainScene, objRef.camera);
       };
       render();
+      this.addListeners();
     }
+
+    World.prototype.setPrimaryView = function() {
+      this.camera.position.x = Math.random() * 1000;
+      this.camera.position.y = 1300;
+      this.camera.position.z = Math.random() * 1000;
+      return this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+    };
+
+    World.prototype.addListeners = function() {
+      var objRef;
+      objRef = this;
+      return $('body').keypress(function(ev) {
+        if (ev.which === 118) {
+          if (objRef.city.cameraFollow) {
+            objRef.city.setCameraFollow(false);
+            return objRef.setPrimaryView();
+          } else {
+            return objRef.city.setCameraFollow(true);
+          }
+        }
+      });
+    };
 
     return World;
 

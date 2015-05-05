@@ -8,12 +8,12 @@ class @World
     FAR: 10000
     '$container': $('body')
 
-    renderer: null
-    camera: null
-    mainScene: null
+    clock: new THREE.Clock()
 
-    clock: new THREE.Clock();
-
+    renderer: undefined
+    camera: undefined
+    mainScene: undefined
+    city: undefined
     mainSceneObjects: []
 
     constructor: ()->
@@ -21,28 +21,29 @@ class @World
         this.camera = new THREE.PerspectiveCamera(this.VIEW_ANGLE, this.WIDTH/this.HEIGHT, this.NEAR, this.FAR);
         this.mainScene = new THREE.Scene();
 
-        this.camera.position.y = 3000;
+        this.setPrimaryView();
 
         #controls
-        controls = new THREE.FirstPersonControls(this.camera);
-        controls.movementSpeed = 1000;
-        controls.lookSpeed = 0.1;
-        controls.target = new THREE.Vector3(0, 0, 0);
-        this.camera.lookAt(controls.target);
+        #controls = new THREE.FirstPersonControls(this.camera);
+        #controls.movementSpeed = 1000;
+        #controls.lookSpeed = 0.1;
+        #controls.target = new THREE.Vector3(0, 0, 0);
+        #this.camera.lookAt(controls.target);
 
         this.mainScene.add(this.camera);
 
         this.renderer.setSize(this.WIDTH, this.HEIGHT);
         this.$container.append(this.renderer.domElement);
 
-        city = new City(
-            15, 15, 50, 5
+        this.city = new City(
+            16, 16, 50, 10
             25, 40, 
             20, 100, 
-            25, 40, 
+            25, 40,
+            this.camera
         );
-        this.mainSceneObjects.push(city);
-        this.mainScene.add(city.getSceneObject());
+        this.mainSceneObjects.push(this.city);
+        this.mainScene.add(this.city.getSceneObject());
 
         #TEST LIGHT
         light = new THREE.AmbientLight(0x404040);
@@ -57,8 +58,27 @@ class @World
                 object.renderSceneObject();
 
             #controls
-            controls.update(objRef.clock.getDelta());
+            #controls.update(objRef.clock.getDelta());
 
             objRef.renderer.render(objRef.mainScene, objRef.camera);
 
         render();
+
+        this.addListeners();
+
+    setPrimaryView: () ->
+        this.camera.position.x = Math.random()*1000;
+        this.camera.position.y = 1300;
+        this.camera.position.z = Math.random()*1000;
+        this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    addListeners: () ->
+        objRef = this;
+        $('body').keypress((ev) ->
+            if (ev.which == 118) #v key
+                if objRef.city.cameraFollow
+                    objRef.city.setCameraFollow(false);
+                    objRef.setPrimaryView();
+                else
+                    objRef.city.setCameraFollow(true);
+        );

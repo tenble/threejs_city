@@ -29,10 +29,10 @@
       var dir, dist, from, i, time, to, xOrZ, _i, _results;
       this.paths = [];
       _results = [];
-      for (i = _i = 0; _i <= 100; i = ++_i) {
+      for (i = _i = 0; _i <= 1000; i = ++_i) {
         dir = Math.round(Math.random()) * -2 + 1;
         xOrZ = Math.round(Math.random());
-        time = 15;
+        time = 60;
         from = i === 0 ? position.clone() : this.paths[i - 1].to.clone();
         dist = 50;
         to = from.clone();
@@ -40,6 +40,10 @@
         _results.push(this.paths[i] = new Path(time, from, to));
       }
       return _results;
+    };
+
+    SmallLight.prototype.getDirection = function() {
+      return this.paths[0].vec;
     };
 
     SmallLight.prototype.getSceneObject = function() {
@@ -75,23 +79,12 @@
       this.vec = to.clone();
       this.vec.sub(from);
       this.vec.divideScalar(time);
-      this.hasReached = this.checkVec(from, to);
+      this.hasReached = THREE.MyHelper.checkVec(from, to);
     }
 
     Path.prototype.advance = function(threeObj) {
       threeObj.position.add(this.vec);
-      return this.hasReached = this.checkVec(threeObj.position, this.to);
-    };
-
-    Path.prototype.checkVec = function(vec1, vec2) {
-      var EPSILON, diff;
-      EPSILON = 0.00001;
-      diff = vec2.clone();
-      diff.sub(vec1);
-      if (Math.abs(diff.x) < EPSILON && Math.abs(diff.y) < EPSILON && Math.abs(diff.z) < EPSILON) {
-        return true;
-      }
-      return false;
+      return this.hasReached = THREE.MyHelper.checkVec(threeObj.position, this.to);
     };
 
     return Path;

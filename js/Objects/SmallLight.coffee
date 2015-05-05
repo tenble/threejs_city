@@ -20,10 +20,10 @@ class @SmallLight extends BaseObject
     generateRandomPaths: (position) ->
     	this.paths = [];
 
-    	for i in [0..100]
+    	for i in [0..1000]
     		dir = Math.round(Math.random()) * -2 + 1;
     		xOrZ = Math.round(Math.random());
-    		time = 15;
+    		time = 60;
     		from = if i == 0 then position.clone() else this.paths[i-1].to.clone();
     		dist = 50;
 
@@ -32,6 +32,8 @@ class @SmallLight extends BaseObject
 
     		this.paths[i] = new Path(time, from, to);
 
+    getDirection: () ->
+    	return this.paths[0].vec;
 
     getSceneObject: () ->
         return this.sceneObject;
@@ -64,19 +66,8 @@ class Path
 		this.vec.sub(from);
 		this.vec.divideScalar(time);
 
-		this.hasReached = this.checkVec(from, to);
+		this.hasReached = THREE.MyHelper.checkVec(from, to);
 
 	advance: (threeObj) ->
 		threeObj.position.add(this.vec);
-		this.hasReached = this.checkVec(threeObj.position, this.to)
-
-	checkVec: (vec1, vec2) ->
-		EPSILON = 0.00001; 
-
-		diff = vec2.clone();
-		diff.sub(vec1);
-
-		if Math.abs(diff.x) < EPSILON and Math.abs(diff.y) < EPSILON and Math.abs(diff.z) < EPSILON
-			return true
-
-		return false
+		this.hasReached = THREE.MyHelper.checkVec(threeObj.position, this.to)
