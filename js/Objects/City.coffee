@@ -36,19 +36,29 @@ class @City extends BaseObject
         this.spawnRandomLight();
         this.spawnRandomLight();
         this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
 
     getSceneObject: () ->
         return this.sceneObject;
 
+    isLightOut: (light) ->
+        pos = light.getSceneObject().position;
+        rad = light.distance;
+        if pos.x > (this.gridX/2) * this.gridSize + rad
+            return true;
+        if pos.z > (this.gridZ/2) * this.gridSize + rad
+            return true;
+        if pos.x < -1 * (this.gridX/2) * this.gridSize - rad
+            return true;
+        if pos.z < -1 * (this.gridZ/2) * this.gridSize - rad
+            return true;
+
+        return false;
+
     renderSceneObject: () ->
         for light in this.lights
-            light.getSceneObject().position.x += Math.random() * (10*this.gridSize/60);
-            if light.getSceneObject().position.x > (this.gridX/2) * this.gridSize + light.getSceneObject().distance
-                this.createRandomLight(light)
+            light.renderSceneObject();
+            if (this.isLightOut(light))
+                this.createRandomLight(light);
 
 
     spawnRandomLight: () ->
@@ -56,16 +66,28 @@ class @City extends BaseObject
         this.lights.push(newLight);
         this.sceneObject.add(newLight.getSceneObject());
 
+    getRandomStart: () ->
+        vec = new THREE.Vector3(
+            this.gridSize * (Math.floor(Math.random() * (this.gridX-2)) - (this.gridX-2)/2),
+            0,
+            this.gridSize * (Math.floor(Math.random() * (this.gridZ-2)) - (this.gridZ-2)/2),
+        );
+        return vec;
+
+    getRandomVelocity: () ->
+        #new THREE.Vector3(Math.random() * (10*this.gridSize/60), 0, 0);
+        new THREE.Vector3(Math.random() * (this.gridX), 0, 0);
+
     #reconfigures light if light param is specified
     createRandomLight: (light) ->
-        if light == undefined
-            light = new SmallLight();
-        light.getSceneObject().color = new THREE.Color(Math.random() * 0xFFFFFF);
-        light.getSceneObject().intensity = 1;
-        light.getSceneObject().distance = 4*this.gridSize;
+        newPos = this.getRandomStart();
 
-        light.getSceneObject().position.x = this.gridSize * (-this.gridX/2);
-        light.getSceneObject().position.z = this.gridSize * Math.floor((Math.random() * this.gridZ) - this.gridZ/2);
+        if light == undefined
+            console.log("New light created.");
+            light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 20, 2*this.gridSize, newPos, this.getRandomVelocity());
+        else
+            light.getSceneObject().position.set(newPos.x, newPos.y, newPos.z);
+            light.generateRandomPaths(newPos);
 
         return light;
 

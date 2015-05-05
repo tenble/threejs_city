@@ -29,14 +29,14 @@
       this.mainScene = new THREE.Scene();
       this.camera.position.y = 3000;
       controls = new THREE.FirstPersonControls(this.camera);
-      controls.movementSpeed = 100;
+      controls.movementSpeed = 1000;
       controls.lookSpeed = 0.1;
       controls.target = new THREE.Vector3(0, 0, 0);
       this.camera.lookAt(controls.target);
       this.mainScene.add(this.camera);
       this.renderer.setSize(this.WIDTH, this.HEIGHT);
       this.$container.append(this.renderer.domElement);
-      city = new City(30, 30, 50, 5, 25, 40, 20, 100, 25, 40);
+      city = new City(15, 15, 50, 5, 25, 40, 20, 100, 25, 40);
       this.mainSceneObjects.push(city);
       this.mainScene.add(city.getSceneObject());
       light = new THREE.AmbientLight(0x404040);
