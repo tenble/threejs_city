@@ -6,37 +6,38 @@
   this.SmallLight = (function(_super) {
     __extends(SmallLight, _super);
 
-    SmallLight.sceneObject;
-
-    SmallLight.distance;
-
-    SmallLight.paths = [];
-
     function SmallLight(color, intensity, distance, position) {
       var light, sphere;
+      this.paths = [];
       this.distance = distance;
       light = new THREE.PointLight(color, intensity, distance);
       sphere = new THREE.Mesh(new THREE.SphereGeometry(2), new THREE.MeshBasicMaterial({
         color: color
       }));
-      this.generateRandomPaths(position);
       this.sceneObject = new THREE.Scene();
       this.sceneObject.add(light);
       this.sceneObject.add(sphere);
+      this.sceneObject.position.set(position.x, position.y, position.z);
+      this.generateRandomPaths(position);
     }
 
     SmallLight.prototype.generateRandomPaths = function(position) {
-      var dir, dist, from, i, time, to, xOrZ, _i, _results;
+      var dirVec, dist, from, i, rotRadians, time, to, x, z, _i, _results;
       this.paths = [];
       _results = [];
       for (i = _i = 0; _i <= 1000; i = ++_i) {
-        dir = Math.round(Math.random()) * -2 + 1;
-        xOrZ = Math.round(Math.random());
-        time = 60;
-        from = i === 0 ? position.clone() : this.paths[i - 1].to.clone();
-        dist = 50;
+        from = i === 0 ? position : this.paths[i - 1].to;
+        time = 60 + (Math.floor(Math.random() * 30));
+        dist = (Math.floor(Math.random() * 3) + 1) * 50;
+        dirVec = i === 0 ? new THREE.Vector3(1, 0, 0) : this.paths[i - 1].getMoveVec().clone().normalize();
+        rotRadians = (Math.round(Math.random() * 2) - 1) * (Math.PI / 2);
+        x = dirVec.x * Math.cos(rotRadians) - dirVec.z * Math.sin(rotRadians);
+        z = dirVec.x * Math.sin(rotRadians) + dirVec.z * Math.cos(rotRadians);
+        dirVec.setX(x);
+        dirVec.setZ(z);
+        dirVec.multiplyScalar(dist);
         to = from.clone();
-        to.add(new THREE.Vector3(dir * xOrZ * dist, 0, (1 - xOrZ) * dist));
+        to.add(dirVec);
         _results.push(this.paths[i] = new Path(time, from, to));
       }
       return _results;
@@ -64,14 +65,6 @@
   })(BaseObject);
 
   Path = (function() {
-    Path.vec;
-
-    Path.to;
-
-    Path.from;
-
-    Path.hasReached;
-
     function Path(time, from, to) {
       this.to = to;
       this.from = from;
@@ -85,6 +78,10 @@
     Path.prototype.advance = function(threeObj) {
       threeObj.position.add(this.vec);
       return this.hasReached = THREE.MyHelper.checkVec(threeObj.position, this.to);
+    };
+
+    Path.prototype.getMoveVec = function() {
+      return this.vec;
     };
 
     return Path;

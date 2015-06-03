@@ -54,9 +54,9 @@
     }
 
     World.prototype.setPrimaryView = function() {
-      this.camera.position.x = Math.random() * 1000;
-      this.camera.position.y = 1300;
-      this.camera.position.z = Math.random() * 1000;
+      this.camera.position.x = 0;
+      this.camera.position.y = 1500;
+      this.camera.position.z = 0;
       return this.camera.lookAt(new THREE.Vector3(0, 0, 0));
     };
 

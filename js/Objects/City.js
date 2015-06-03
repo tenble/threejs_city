@@ -5,13 +5,13 @@
   this.City = (function(_super) {
     __extends(City, _super);
 
-    City.gridX;
+    City.prototype.gridX = void 0;
 
-    City.gridZ;
+    City.prototype.gridZ = void 0;
 
-    City.gridSize;
+    City.prototype.gridSize = void 0;
 
-    City.camera;
+    City.prototype.camera = void 0;
 
     City.prototype.cameraFollow = false;
 
@@ -20,7 +20,7 @@
     City.prototype.lights = [];
 
     function City(gridX, gridZ, gridSize, gridMargin, minBSizeX, maxBSizeX, minBSizeY, maxBSizeY, minBSizeZ, maxBSizeZ, camera) {
-      var i, j, position, size, _i, _j, _ref, _ref1, _ref2, _ref3;
+      var i, j, position, size, _i, _j, _k, _ref, _ref1, _ref2, _ref3;
       this.gridX = gridX;
       this.gridZ = gridZ;
       this.gridSize = gridSize;
@@ -41,20 +41,9 @@
           this.sceneObject.add(new Building(position.x, position.y, position.z, size.x, size.y, size.z).getSceneObject());
         }
       }
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
-      this.spawnRandomLight();
+      for (i = _k = 0; _k <= 100; i = ++_k) {
+        this.spawnRandomLight();
+      }
     }
 
     City.prototype.getSceneObject = function() {
@@ -64,7 +53,7 @@
     City.prototype.isLightOut = function(light) {
       var pos, rad;
       pos = light.getSceneObject().position;
-      rad = light.distance;
+      rad = light.distance / 4;
       if (pos.x > (this.gridX / 2) * this.gridSize + rad) {
         return true;
       }
@@ -80,7 +69,7 @@
       return false;
     };
 
-    City.prototype.CAMERA_HEIGHT_OFFSET = 15;
+    City.prototype.CAMERA_HEIGHT_OFFSET = 10;
 
     City.prototype.INTERP_FRAMES = 30;
 
@@ -150,16 +139,12 @@
       return vec;
     };
 
-    City.prototype.getRandomVelocity = function() {
-      return new THREE.Vector3(Math.random() * this.gridX, 0, 0);
-    };
-
     City.prototype.createRandomLight = function(light) {
       var newPos;
       newPos = this.getRandomStart();
       if (light === void 0) {
-        console.log("New light created.");
-        light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 1, 2 * this.gridSize, newPos, this.getRandomVelocity());
+        light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 1, 2 * this.gridSize, newPos);
+        console.log("New light created at " + newPos.x + ", " + newPos.y + ", " + newPos.z + ".");
       } else {
         light.getSceneObject().position.set(newPos.x, newPos.y, newPos.z);
         light.generateRandomPaths(newPos);

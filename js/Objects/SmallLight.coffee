@@ -1,73 +1,75 @@
 class @SmallLight extends BaseObject
-
-    this.sceneObject;
-    this.distance;
-
-    this.paths = [];
-
     constructor: (color, intensity, distance, position) ->
-    	this.distance = distance;
-    	light = new THREE.PointLight(color, intensity, distance);
-    	sphere = new THREE.Mesh(new THREE.SphereGeometry(2), new THREE.MeshBasicMaterial(
-    		color: color
-    	));
-    	this.generateRandomPaths(position);
+        @paths = []
 
-    	this.sceneObject = new THREE.Scene();
-    	this.sceneObject.add(light);
-    	this.sceneObject.add(sphere);
+        @distance = distance
+        light = new THREE.PointLight(color, intensity, distance)
+        sphere = new THREE.Mesh(new THREE.SphereGeometry(2), new THREE.MeshBasicMaterial(
+        	color: color
+        ))
+
+        @sceneObject = new THREE.Scene()
+        @sceneObject.add(light)
+        @sceneObject.add(sphere)
+        @sceneObject.position.set(position.x, position.y, position.z)
+
+        @generateRandomPaths(position)
 
     generateRandomPaths: (position) ->
-    	this.paths = [];
+        @paths = []
 
-    	for i in [0..1000]
-    		dir = Math.round(Math.random()) * -2 + 1;
-    		xOrZ = Math.round(Math.random());
-    		time = 60;
-    		from = if i == 0 then position.clone() else this.paths[i-1].to.clone();
-    		dist = 50;
+        #TODO set terminating amount rather than constant
+        for i in [0..1000]
+            from = if i == 0 then position else @paths[i-1].to
+            time = 60 + (Math.floor(Math.random()*30)) #number of frames
+            dist = (Math.floor(Math.random()*3)+1)*50 #distance travelled
 
-    		to = from.clone();
-    		to.add(new THREE.Vector3(dir*(xOrZ)*dist, 0, (1-xOrZ)*dist));
+            #work out directional vector
+            #can either go forward, left or right
+            dirVec = if i == 0 then new THREE.Vector3(1, 0, 0) else @paths[i-1].getMoveVec().clone().normalize()
+            rotRadians = (Math.round(Math.random()*2) - 1) * (Math.PI/2)
+            x = dirVec.x*Math.cos(rotRadians) - dirVec.z*Math.sin(rotRadians)
+            z = dirVec.x*Math.sin(rotRadians) + dirVec.z*Math.cos(rotRadians)
+            dirVec.setX(x)
+            dirVec.setZ(z)
+            dirVec.multiplyScalar(dist)
 
-    		this.paths[i] = new Path(time, from, to);
+            #add to previous know vector
+            to = from.clone()
+            to.add(dirVec)
+
+            @paths[i] = new Path(time, from, to)
 
     getDirection: () ->
-    	return this.paths[0].vec;
+        return @paths[0].vec
 
     getSceneObject: () ->
-        return this.sceneObject;
+        return @sceneObject
 
     renderSceneObject: () ->
-    	#this.sceneObject.position.add(this.velocity);
-    	path = this.paths[0];
-    	#null check
+        #@sceneObject.position.add(@velocity)
+        path = @paths[0]
+        #null check
 
-    	path.advance(this.getSceneObject());
-    	if path.hasReached and this.paths.length > 1
-    		this.paths.splice(0, 1);
+        path.advance(@getSceneObject())
+        if path.hasReached and @paths.length > 1
+            @paths.splice(0, 1)
 
 
 class Path
-	this.vec;
-	this.to;
+    constructor: (time, from, to) ->
+        @to = to
+        @from = from
+        @hasReached = false
+        @vec = to.clone()
+        @vec.sub(from)
+        @vec.divideScalar(time)
 
-	this.from; #DELETE DIS
+        @hasReached = THREE.MyHelper.checkVec(from, to)
 
-	this.hasReached;
+    advance: (threeObj) ->
+        threeObj.position.add(@vec)
+        @hasReached = THREE.MyHelper.checkVec(threeObj.position, this.to)
 
-	#time measured in frames
-	constructor: (time, from, to) ->
-		this.to = to;
-		this.from = from; #DELETE DIS
-		this.hasReached = false;
-
-		this.vec = to.clone();
-		this.vec.sub(from);
-		this.vec.divideScalar(time);
-
-		this.hasReached = THREE.MyHelper.checkVec(from, to);
-
-	advance: (threeObj) ->
-		threeObj.position.add(this.vec);
-		this.hasReached = THREE.MyHelper.checkVec(threeObj.position, this.to)
+    getMoveVec: () ->
+        return @vec

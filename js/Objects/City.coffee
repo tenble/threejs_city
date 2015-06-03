@@ -1,22 +1,19 @@
 class @City extends BaseObject
-
-    this.gridX;
-    this.gridZ;
-    this.gridSize;
-    this.camera;
-
+    gridX: undefined
+    gridZ: undefined
+    gridSize: undefined
+    camera: undefined
     cameraFollow: false
     sceneObject: null
-
     lights: []
 
     constructor: (gridX, gridZ, gridSize, gridMargin, minBSizeX, maxBSizeX, minBSizeY, maxBSizeY, minBSizeZ, maxBSizeZ, camera) ->
-        this.gridX = gridX;
-        this.gridZ = gridZ;
-        this.gridSize = gridSize;
-        this.camera = camera;
+        this.gridX = gridX
+        this.gridZ = gridZ
+        this.gridSize = gridSize
+        this.camera = camera
 
-        this.sceneObject = new THREE.Scene();
+        this.sceneObject = new THREE.Scene()
 
         for i in [-gridX/2..gridX/2]
             for j in [-gridZ/2..gridZ/2]
@@ -25,126 +22,110 @@ class @City extends BaseObject
                     y: 0
                     z: j*gridSize + gridSize/2
                 size =
-                    x: minBSizeX + Math.random()*(maxBSizeX-minBSizeX);
-                    y: minBSizeY + Math.random()*(maxBSizeY-minBSizeY);
-                    z: minBSizeZ + Math.random()*(maxBSizeZ-minBSizeZ);
+                    x: minBSizeX + Math.random()*(maxBSizeX-minBSizeX)
+                    y: minBSizeY + Math.random()*(maxBSizeY-minBSizeY)
+                    z: minBSizeZ + Math.random()*(maxBSizeZ-minBSizeZ)
 
-                #position.x += Math.random()*(gridSize-gridMargin-size.x);
-                #position.z += Math.random()*(gridSize-gridMargin-size.z);
+                #position.x += Math.random()*(gridSize-gridMargin-size.x)
+                #position.z += Math.random()*(gridSize-gridMargin-size.z)
 
-                this.sceneObject.add(new Building(position.x, position.y, position.z, size.x, size.y, size.z).getSceneObject());
+                this.sceneObject.add(new Building(position.x, position.y, position.z, size.x, size.y, size.z).getSceneObject())
 
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
-        this.spawnRandomLight();
+        for i in [0..100]
+            this.spawnRandomLight()
 
     getSceneObject: () ->
-        return this.sceneObject;
+        return this.sceneObject
 
     isLightOut: (light) ->
-        pos = light.getSceneObject().position;
-        rad = light.distance;
+        pos = light.getSceneObject().position
+        rad = light.distance/4
         if pos.x > (this.gridX/2) * this.gridSize + rad
-            return true;
+            return true
         if pos.z > (this.gridZ/2) * this.gridSize + rad
-            return true;
+            return true
         if pos.x < -1 * (this.gridX/2) * this.gridSize - rad
-            return true;
+            return true
         if pos.z < -1 * (this.gridZ/2) * this.gridSize - rad
-            return true;
+            return true
 
-        return false;
+        return false
 
-    CAMERA_HEIGHT_OFFSET: 15
+    CAMERA_HEIGHT_OFFSET: 10
     INTERP_FRAMES: 30
     interpFrames: 0
-    prevVec: new THREE.Vector3(0, 0, 0);
-    posMoveVec: new THREE.Vector3(0, 0, 0);
+    prevVec: new THREE.Vector3(0, 0, 0)
+    posMoveVec: new THREE.Vector3(0, 0, 0)
     renderSceneObject: () ->
         for light in this.lights
-            light.renderSceneObject();
+            light.renderSceneObject()
             if (this.isLightOut(light))
-                this.createRandomLight(light);
+                this.createRandomLight(light)
 
         if this.cameraFollow
-            lightPos = this.lights[0].getSceneObject().position.clone();
-            lightMoveVec = this.lights[0].getDirection().clone();
+            lightPos = this.lights[0].getSceneObject().position.clone()
+            lightMoveVec = this.lights[0].getDirection().clone()
 
             if this.interpFrames == 0 and not THREE.MyHelper.checkVec(lightMoveVec, this.prevVec)
-                this.interpFrames = this.INTERP_FRAMES;
-                finalLightPos = lightPos.clone().add(lightMoveVec.clone().multiplyScalar(this.INTERP_FRAMES));
-                finalLightPos.sub(lightMoveVec.clone().multiplyScalar(60));
-                this.posMoveVec = finalLightPos.clone().sub(this.camera.position).divideScalar(this.interpFrames);
+                this.interpFrames = this.INTERP_FRAMES
+                finalLightPos = lightPos.clone().add(lightMoveVec.clone().multiplyScalar(this.INTERP_FRAMES))
+                finalLightPos.sub(lightMoveVec.clone().multiplyScalar(60))
+                this.posMoveVec = finalLightPos.clone().sub(this.camera.position).divideScalar(this.interpFrames)
 
             if this.interpFrames > 0
                 #position
-                this.camera.position.add(this.posMoveVec);
-                this.camera.position.setY(this.CAMERA_HEIGHT_OFFSET);
+                this.camera.position.add(this.posMoveVec)
+                this.camera.position.setY(this.CAMERA_HEIGHT_OFFSET)
 
                 #direction
                 this.camera.lookAt(this.camera.position.clone().add(
                     this.prevVec.clone().multiplyScalar(this.interpFrames-1).add(
                         lightMoveVec.clone().multiplyScalar(this.INTERP_FRAMES-this.interpFrames+1)
                     )
-                ));
+                ))
 
-                this.interpFrames--;
+                this.interpFrames--
                 if this.interpFrames == 0
-                    this.prevVec = lightMoveVec;
+                    this.prevVec = lightMoveVec
             else
-                this.camera.position.set(lightPos.x, this.CAMERA_HEIGHT_OFFSET, lightPos.z);
-                this.camera.position.sub(lightMoveVec.setY(0).clone().multiplyScalar(60));
+                this.camera.position.set(lightPos.x, this.CAMERA_HEIGHT_OFFSET, lightPos.z)
+                this.camera.position.sub(lightMoveVec.setY(0).clone().multiplyScalar(60))
 
     setCameraFollow: (bool) ->
-        this.cameraFollow = bool;
+        this.cameraFollow = bool
         if bool
-            this.prevVec = this.lights[0].getDirection().clone();
+            this.prevVec = this.lights[0].getDirection().clone()
 
-            lightPos = this.lights[0].getSceneObject().position.clone();
-            lightMoveVec = this.lights[0].getDirection().clone();
+            lightPos = this.lights[0].getSceneObject().position.clone()
+            lightMoveVec = this.lights[0].getDirection().clone()
 
-            this.camera.position.set(lightPos.x, this.CAMERA_HEIGHT_OFFSET, lightPos.z);
-            this.camera.position.sub(lightMoveVec.setY(0).clone().multiplyScalar(60));
-            this.camera.lookAt(lightPos.clone().setY(this.CAMERA_HEIGHT_OFFSET));
+            this.camera.position.set(lightPos.x, this.CAMERA_HEIGHT_OFFSET, lightPos.z)
+            this.camera.position.sub(lightMoveVec.setY(0).clone().multiplyScalar(60))
+            this.camera.lookAt(lightPos.clone().setY(this.CAMERA_HEIGHT_OFFSET))
 
     spawnRandomLight: () ->
-        newLight = this.createRandomLight();
-        this.lights.push(newLight);
-        this.sceneObject.add(newLight.getSceneObject());
+        newLight = this.createRandomLight()
+        this.lights.push(newLight)
+        this.sceneObject.add(newLight.getSceneObject())
 
     getRandomStart: () ->
         vec = new THREE.Vector3(
             this.gridSize * (Math.floor(Math.random() * (this.gridX-2)) - (this.gridX-2)/2),
             0,
             this.gridSize * (Math.floor(Math.random() * (this.gridZ-2)) - (this.gridZ-2)/2),
-        );
-        return vec;
-
-    getRandomVelocity: () ->
-        #new THREE.Vector3(Math.random() * (10*this.gridSize/60), 0, 0);
-        new THREE.Vector3(Math.random() * (this.gridX), 0, 0);
+        )
+        return vec
 
     #reconfigures light if light param is specified
     createRandomLight: (light) ->
-        newPos = this.getRandomStart();
+        newPos = this.getRandomStart()
 
         if light == undefined
-            console.log("New light created.");
-            light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 1, 2*this.gridSize, newPos, this.getRandomVelocity());
+            light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 1, 2*this.gridSize, newPos)
+            console.log("New light created at " + newPos.x + ", " + newPos.y + ", " + newPos.z + ".")
         else
-            light.getSceneObject().position.set(newPos.x, newPos.y, newPos.z);
-            light.generateRandomPaths(newPos);
+            light.getSceneObject().position.set(newPos.x, newPos.y, newPos.z)
+            light.generateRandomPaths(newPos)
 
-        return light;
+        return light
 

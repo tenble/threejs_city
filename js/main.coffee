@@ -1,3 +1,3 @@
 $(window).load(() ->
-    new World();
-);
+    new World()
+)

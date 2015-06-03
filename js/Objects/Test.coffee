@@ -2,14 +2,14 @@ class @Test extends BaseObject
     object: null
 
     constructor: () ->
-        radius = 50;
-        segments = 32;
-        rings = 32;
+        radius = 50
+        segments = 32
+        rings = 32
 
         sphereMaterial =
             new THREE.MeshLambertMaterial(
                 color: 0xCC0000
-            );
+            )
 
         sphere = new THREE.Mesh(
 
@@ -18,12 +18,12 @@ class @Test extends BaseObject
             segments,
             rings),
 
-          sphereMaterial);
+          sphereMaterial)
 
-        this.object = sphere;
+        this.object = sphere
 
     getSceneObject: () ->
-        return this.object;
+        return this.object
 
     renderSceneObject: () ->
-        this.object.rotation.y += 0.01;
+        this.object.rotation.y += 0.01
