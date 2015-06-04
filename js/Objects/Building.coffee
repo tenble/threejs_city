@@ -30,12 +30,12 @@ class @Building extends FlatTerrain
             map     : texture
         })
 
-        this.sourceObject = new THREE.Mesh(geometry, material)
-        this.sourceObject.position.x = posX
-        this.sourceObject.position.y = posY
-        this.sourceObject.position.z = posZ
+        @sourceObject = new THREE.Mesh(geometry, material)
+        @sourceObject.position.x = posX
+        @sourceObject.position.y = posY
+        @sourceObject.position.z = posZ
 
     getSceneObject: () ->
-        return this.sourceObject
+        return @sourceObject
 
     renderSceneObject: () ->

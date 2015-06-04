@@ -50,10 +50,7 @@
       return this.sceneObject;
     };
 
-    City.prototype.isLightOut = function(light) {
-      var pos, rad;
-      pos = light.getSceneObject().position;
-      rad = light.distance / 4;
+    City.prototype.isLightOut = function(pos, rad) {
       if (pos.x > (this.gridX / 2) * this.gridSize + rad) {
         return true;
       }
@@ -85,7 +82,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         light = _ref[_i];
         light.renderSceneObject();
-        if (this.isLightOut(light)) {
+        if (this.isLightOut(light.getSceneObject().position, light.distance / 4)) {
           this.createRandomLight(light);
         }
       }
@@ -143,11 +140,10 @@
       var newPos;
       newPos = this.getRandomStart();
       if (light === void 0) {
-        light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 1, 2 * this.gridSize, newPos);
-        console.log("New light created at " + newPos.x + ", " + newPos.y + ", " + newPos.z + ".");
+        light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 1, 2 * this.gridSize, newPos, this);
+        console.log("New light created at " + newPos.x + ", " + newPos.y + ", " + newPos.z + " with " + light.paths.length + " paths");
       } else {
-        light.getSceneObject().position.set(newPos.x, newPos.y, newPos.z);
-        light.generateRandomPaths(newPos);
+
       }
       return light;
     };

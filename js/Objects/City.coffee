@@ -8,12 +8,12 @@ class @City extends BaseObject
     lights: []
 
     constructor: (gridX, gridZ, gridSize, gridMargin, minBSizeX, maxBSizeX, minBSizeY, maxBSizeY, minBSizeZ, maxBSizeZ, camera) ->
-        this.gridX = gridX
-        this.gridZ = gridZ
-        this.gridSize = gridSize
-        this.camera = camera
+        @gridX = gridX
+        @gridZ = gridZ
+        @gridSize = gridSize
+        @camera = camera
 
-        this.sceneObject = new THREE.Scene()
+        @sceneObject = new THREE.Scene()
 
         for i in [-gridX/2..gridX/2]
             for j in [-gridZ/2..gridZ/2]
@@ -29,24 +29,22 @@ class @City extends BaseObject
                 #position.x += Math.random()*(gridSize-gridMargin-size.x)
                 #position.z += Math.random()*(gridSize-gridMargin-size.z)
 
-                this.sceneObject.add(new Building(position.x, position.y, position.z, size.x, size.y, size.z).getSceneObject())
+                @sceneObject.add(new Building(position.x, position.y, position.z, size.x, size.y, size.z).getSceneObject())
 
         for i in [0..100]
-            this.spawnRandomLight()
+            @spawnRandomLight()
 
     getSceneObject: () ->
-        return this.sceneObject
+        return @sceneObject
 
-    isLightOut: (light) ->
-        pos = light.getSceneObject().position
-        rad = light.distance/4
-        if pos.x > (this.gridX/2) * this.gridSize + rad
+    isLightOut: (pos, rad) ->
+        if pos.x > (@gridX/2) * @gridSize + rad
             return true
-        if pos.z > (this.gridZ/2) * this.gridSize + rad
+        if pos.z > (@gridZ/2) * @gridSize + rad
             return true
-        if pos.x < -1 * (this.gridX/2) * this.gridSize - rad
+        if pos.x < -1 * (@gridX/2) * @gridSize - rad
             return true
-        if pos.z < -1 * (this.gridZ/2) * this.gridSize - rad
+        if pos.z < -1 * (@gridZ/2) * @gridSize - rad
             return true
 
         return false
@@ -57,75 +55,75 @@ class @City extends BaseObject
     prevVec: new THREE.Vector3(0, 0, 0)
     posMoveVec: new THREE.Vector3(0, 0, 0)
     renderSceneObject: () ->
-        for light in this.lights
+        for light in @lights
             light.renderSceneObject()
-            if (this.isLightOut(light))
-                this.createRandomLight(light)
+            if (@isLightOut(light.getSceneObject().position, light.distance/4))
+                @createRandomLight(light)
 
-        if this.cameraFollow
-            lightPos = this.lights[0].getSceneObject().position.clone()
-            lightMoveVec = this.lights[0].getDirection().clone()
+        if @cameraFollow
+            lightPos = @lights[0].getSceneObject().position.clone()
+            lightMoveVec = @lights[0].getDirection().clone()
 
-            if this.interpFrames == 0 and not THREE.MyHelper.checkVec(lightMoveVec, this.prevVec)
-                this.interpFrames = this.INTERP_FRAMES
-                finalLightPos = lightPos.clone().add(lightMoveVec.clone().multiplyScalar(this.INTERP_FRAMES))
+            if @interpFrames == 0 and not THREE.MyHelper.checkVec(lightMoveVec, @prevVec)
+                @interpFrames = @INTERP_FRAMES
+                finalLightPos = lightPos.clone().add(lightMoveVec.clone().multiplyScalar(@INTERP_FRAMES))
                 finalLightPos.sub(lightMoveVec.clone().multiplyScalar(60))
-                this.posMoveVec = finalLightPos.clone().sub(this.camera.position).divideScalar(this.interpFrames)
+                @posMoveVec = finalLightPos.clone().sub(@camera.position).divideScalar(@interpFrames)
 
-            if this.interpFrames > 0
+            if @interpFrames > 0
                 #position
-                this.camera.position.add(this.posMoveVec)
-                this.camera.position.setY(this.CAMERA_HEIGHT_OFFSET)
+                @camera.position.add(@posMoveVec)
+                @camera.position.setY(@CAMERA_HEIGHT_OFFSET)
 
                 #direction
-                this.camera.lookAt(this.camera.position.clone().add(
-                    this.prevVec.clone().multiplyScalar(this.interpFrames-1).add(
-                        lightMoveVec.clone().multiplyScalar(this.INTERP_FRAMES-this.interpFrames+1)
+                @camera.lookAt(@camera.position.clone().add(
+                    @prevVec.clone().multiplyScalar(@interpFrames-1).add(
+                        lightMoveVec.clone().multiplyScalar(@INTERP_FRAMES-@interpFrames+1)
                     )
                 ))
 
-                this.interpFrames--
-                if this.interpFrames == 0
-                    this.prevVec = lightMoveVec
+                @interpFrames--
+                if @interpFrames == 0
+                    @prevVec = lightMoveVec
             else
-                this.camera.position.set(lightPos.x, this.CAMERA_HEIGHT_OFFSET, lightPos.z)
-                this.camera.position.sub(lightMoveVec.setY(0).clone().multiplyScalar(60))
+                @camera.position.set(lightPos.x, @CAMERA_HEIGHT_OFFSET, lightPos.z)
+                @camera.position.sub(lightMoveVec.setY(0).clone().multiplyScalar(60))
 
     setCameraFollow: (bool) ->
-        this.cameraFollow = bool
+        @cameraFollow = bool
         if bool
-            this.prevVec = this.lights[0].getDirection().clone()
+            @prevVec = @lights[0].getDirection().clone()
 
-            lightPos = this.lights[0].getSceneObject().position.clone()
-            lightMoveVec = this.lights[0].getDirection().clone()
+            lightPos = @lights[0].getSceneObject().position.clone()
+            lightMoveVec = @lights[0].getDirection().clone()
 
-            this.camera.position.set(lightPos.x, this.CAMERA_HEIGHT_OFFSET, lightPos.z)
-            this.camera.position.sub(lightMoveVec.setY(0).clone().multiplyScalar(60))
-            this.camera.lookAt(lightPos.clone().setY(this.CAMERA_HEIGHT_OFFSET))
+            @camera.position.set(lightPos.x, @CAMERA_HEIGHT_OFFSET, lightPos.z)
+            @camera.position.sub(lightMoveVec.setY(0).clone().multiplyScalar(60))
+            @camera.lookAt(lightPos.clone().setY(@CAMERA_HEIGHT_OFFSET))
 
     spawnRandomLight: () ->
-        newLight = this.createRandomLight()
-        this.lights.push(newLight)
-        this.sceneObject.add(newLight.getSceneObject())
+        newLight = @createRandomLight()
+        @lights.push(newLight)
+        @sceneObject.add(newLight.getSceneObject())
 
     getRandomStart: () ->
         vec = new THREE.Vector3(
-            this.gridSize * (Math.floor(Math.random() * (this.gridX-2)) - (this.gridX-2)/2),
+            @gridSize * (Math.floor(Math.random() * (@gridX-2)) - (@gridX-2)/2),
             0,
-            this.gridSize * (Math.floor(Math.random() * (this.gridZ-2)) - (this.gridZ-2)/2),
+            @gridSize * (Math.floor(Math.random() * (@gridZ-2)) - (@gridZ-2)/2),
         )
         return vec
 
     #reconfigures light if light param is specified
     createRandomLight: (light) ->
-        newPos = this.getRandomStart()
+        newPos = @getRandomStart()
 
         if light == undefined
-            light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 1, 2*this.gridSize, newPos)
-            console.log("New light created at " + newPos.x + ", " + newPos.y + ", " + newPos.z + ".")
+            light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 1, 2*@gridSize, newPos, @)
+            console.log("New light created at " + newPos.x + ", " + newPos.y + ", " + newPos.z + " with " + light.paths.length + " paths")
         else
-            light.getSceneObject().position.set(newPos.x, newPos.y, newPos.z)
-            light.generateRandomPaths(newPos)
+            #light.getSceneObject().position.set(newPos.x, newPos.y, newPos.z)
+            #light.generateRandomPaths(newPos)
 
         return light
 

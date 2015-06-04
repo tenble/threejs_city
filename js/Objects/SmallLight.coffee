@@ -1,10 +1,11 @@
 class @SmallLight extends BaseObject
-    constructor: (color, intensity, distance, position) ->
+    constructor: (color, intensity, distance, position, cityInstance) ->
         @paths = []
-
         @distance = distance
+        @cityInstance = cityInstance
+
         light = new THREE.PointLight(color, intensity, distance)
-        sphere = new THREE.Mesh(new THREE.SphereGeometry(2), new THREE.MeshBasicMaterial(
+        sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshBasicMaterial(
         	color: color
         ))
 
@@ -19,7 +20,7 @@ class @SmallLight extends BaseObject
         @paths = []
 
         #TODO set terminating amount rather than constant
-        for i in [0..1000]
+        for i in [0..100000]
             from = if i == 0 then position else @paths[i-1].to
             time = 60 + (Math.floor(Math.random()*30)) #number of frames
             dist = (Math.floor(Math.random()*3)+1)*50 #distance travelled
@@ -40,6 +41,9 @@ class @SmallLight extends BaseObject
 
             @paths[i] = new Path(time, from, to)
 
+            if @cityInstance.isLightOut(to, @distance)
+                break
+
     getDirection: () ->
         return @paths[0].vec
 
@@ -47,10 +51,7 @@ class @SmallLight extends BaseObject
         return @sceneObject
 
     renderSceneObject: () ->
-        #@sceneObject.position.add(@velocity)
         path = @paths[0]
-        #null check
-
         path.advance(@getSceneObject())
         if path.hasReached and @paths.length > 1
             @paths.splice(0, 1)

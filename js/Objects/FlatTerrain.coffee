@@ -11,7 +11,7 @@ class @FlatTerrain extends BaseObject
             color: 0xFFFFFF
             map: texture
         )
-        this.mainObject = new THREE.Mesh(geometry, mat)
+        @mainObject = new THREE.Mesh(geometry, mat)
     getSceneObject: () ->
-        return this.mainObject
+        return @mainObject
     renderSceneObject: () ->

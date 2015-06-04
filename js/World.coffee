@@ -17,37 +17,37 @@ class @World
     mainSceneObjects: []
 
     constructor: ()->
-        this.renderer = new THREE.WebGLRenderer()
-        this.camera = new THREE.PerspectiveCamera(this.VIEW_ANGLE, this.WIDTH/this.HEIGHT, this.NEAR, this.FAR)
-        this.mainScene = new THREE.Scene()
+        @renderer = new THREE.WebGLRenderer()
+        @camera = new THREE.PerspectiveCamera(@VIEW_ANGLE, @WIDTH/@HEIGHT, @NEAR, @FAR)
+        @mainScene = new THREE.Scene()
 
-        this.setPrimaryView()
+        @setPrimaryView()
 
         #controls
-        #controls = new THREE.FirstPersonControls(this.camera)
+        #controls = new THREE.FirstPersonControls(@camera)
         #controls.movementSpeed = 1000
         #controls.lookSpeed = 0.1
         #controls.target = new THREE.Vector3(0, 0, 0)
-        #this.camera.lookAt(controls.target)
+        #@camera.lookAt(controls.target)
 
-        this.mainScene.add(this.camera)
+        @mainScene.add(@camera)
 
-        this.renderer.setSize(this.WIDTH, this.HEIGHT)
-        this.$container.append(this.renderer.domElement)
+        @renderer.setSize(@WIDTH, @HEIGHT)
+        @$container.append(@renderer.domElement)
 
-        this.city = new City(
+        @city = new City(
             16, 16, 50, 10
             25, 40, 
             20, 100, 
             25, 40,
-            this.camera
+            @camera
         )
-        this.mainSceneObjects.push(this.city)
-        this.mainScene.add(this.city.getSceneObject())
+        @mainSceneObjects.push(@city)
+        @mainScene.add(@city.getSceneObject())
 
         #TEST LIGHT
         light = new THREE.AmbientLight(0x404040)
-        this.mainScene.add(light)
+        @mainScene.add(light)
 
         objRef = this
         render = () ->
@@ -64,13 +64,13 @@ class @World
 
         render()
 
-        this.addListeners()
+        @addListeners()
 
     setPrimaryView: () ->
-        this.camera.position.x = 0
-        this.camera.position.y = 1500
-        this.camera.position.z = 0
-        this.camera.lookAt(new THREE.Vector3(0, 0, 0))
+        @camera.position.x = 0
+        @camera.position.y = 1500
+        @camera.position.z = 0
+        @camera.lookAt(new THREE.Vector3(0, 0, 0))
 
     addListeners: () ->
         objRef = this

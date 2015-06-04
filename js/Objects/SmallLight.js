@@ -6,12 +6,13 @@
   this.SmallLight = (function(_super) {
     __extends(SmallLight, _super);
 
-    function SmallLight(color, intensity, distance, position) {
+    function SmallLight(color, intensity, distance, position, cityInstance) {
       var light, sphere;
       this.paths = [];
       this.distance = distance;
+      this.cityInstance = cityInstance;
       light = new THREE.PointLight(color, intensity, distance);
-      sphere = new THREE.Mesh(new THREE.SphereGeometry(2), new THREE.MeshBasicMaterial({
+      sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshBasicMaterial({
         color: color
       }));
       this.sceneObject = new THREE.Scene();
@@ -25,7 +26,7 @@
       var dirVec, dist, from, i, rotRadians, time, to, x, z, _i, _results;
       this.paths = [];
       _results = [];
-      for (i = _i = 0; _i <= 1000; i = ++_i) {
+      for (i = _i = 0; _i <= 100000; i = ++_i) {
         from = i === 0 ? position : this.paths[i - 1].to;
         time = 60 + (Math.floor(Math.random() * 30));
         dist = (Math.floor(Math.random() * 3) + 1) * 50;
@@ -38,7 +39,12 @@
         dirVec.multiplyScalar(dist);
         to = from.clone();
         to.add(dirVec);
-        _results.push(this.paths[i] = new Path(time, from, to));
+        this.paths[i] = new Path(time, from, to);
+        if (this.cityInstance.isLightOut(to, this.distance)) {
+          break;
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
     };

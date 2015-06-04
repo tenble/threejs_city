@@ -20,10 +20,10 @@ class @Test extends BaseObject
 
           sphereMaterial)
 
-        this.object = sphere
+        @object = sphere
 
     getSceneObject: () ->
-        return this.object
+        return @object
 
     renderSceneObject: () ->
-        this.object.rotation.y += 0.01
+        @object.rotation.y += 0.01
