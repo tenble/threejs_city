@@ -51,6 +51,18 @@ class @City extends BaseObject
 
     CAMERA_HEIGHT_OFFSET: 10
     INTERP_FRAMES: 30
+    CAMERA_DIST_BEHIND: 60
+    TRANSITION_CURVE: [
+        1, 1, 1, 1, 1,
+        4, 4, 4, 4, 4,
+        16, 16, 16, 16, 16
+        64, 64, 64, 64, 64
+        256, 256, 256, 256, 256
+        1024, 1024, 1024, 1024, 1024
+    ]
+    SUM_TRANSITION_CURVE: City.prototype.TRANSITION_CURVE.reduce((a, b) ->
+        return a+b
+    , 0)
     interpFrames: 0
     prevVec: new THREE.Vector3(0, 0, 0)
     posMoveVec: new THREE.Vector3(0, 0, 0)
@@ -65,7 +77,7 @@ class @City extends BaseObject
         if @cameraFollow
             lightPos = @lights[0].getSceneObject().position.clone()
             lightMoveVec = @lights[0].getDirection().clone()
-            cameraDistDiff = lightMoveVec.clone().normalize().multiplyScalar(60)
+            cameraDistDiff = lightMoveVec.clone().normalize().multiplyScalar(@CAMERA_DIST_BEHIND)
 
             if @interpFrames == 0 and not THREE.MyHelper.checkVec(lightMoveVec, @prevVec) and not THREE.MyHelper.checkVec(prevLightMoveVec.clone().normalize(), lightMoveVec.clone().normalize())
                 @interpFrames = @INTERP_FRAMES
@@ -75,7 +87,7 @@ class @City extends BaseObject
 
             if @interpFrames > 0
                 #position
-                @camera.position.add(@posMoveVec)
+                @camera.position.add(@posMoveVec.clone().multiplyScalar(@INTERP_FRAMES).multiplyScalar(@TRANSITION_CURVE[@interpFrames-1]/@SUM_TRANSITION_CURVE))
                 @camera.position.setY(@CAMERA_HEIGHT_OFFSET)
 
                 #direction

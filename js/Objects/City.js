@@ -70,6 +70,14 @@
 
     City.prototype.INTERP_FRAMES = 30;
 
+    City.prototype.CAMERA_DIST_BEHIND = 60;
+
+    City.prototype.TRANSITION_CURVE = [1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 16, 16, 16, 16, 16, 64, 64, 64, 64, 64, 256, 256, 256, 256, 256, 1024, 1024, 1024, 1024, 1024];
+
+    City.prototype.SUM_TRANSITION_CURVE = City.prototype.TRANSITION_CURVE.reduce(function(a, b) {
+      return a + b;
+    }, 0);
+
     City.prototype.interpFrames = 0;
 
     City.prototype.prevVec = new THREE.Vector3(0, 0, 0);
@@ -90,7 +98,7 @@
       if (this.cameraFollow) {
         lightPos = this.lights[0].getSceneObject().position.clone();
         lightMoveVec = this.lights[0].getDirection().clone();
-        cameraDistDiff = lightMoveVec.clone().normalize().multiplyScalar(60);
+        cameraDistDiff = lightMoveVec.clone().normalize().multiplyScalar(this.CAMERA_DIST_BEHIND);
         if (this.interpFrames === 0 && !THREE.MyHelper.checkVec(lightMoveVec, this.prevVec) && !THREE.MyHelper.checkVec(prevLightMoveVec.clone().normalize(), lightMoveVec.clone().normalize())) {
           this.interpFrames = this.INTERP_FRAMES;
           finalLightPos = lightPos.clone().add(lightMoveVec.clone().multiplyScalar(this.INTERP_FRAMES));
@@ -98,7 +106,7 @@
           this.posMoveVec = finalLightPos.clone().sub(this.camera.position).divideScalar(this.interpFrames);
         }
         if (this.interpFrames > 0) {
-          this.camera.position.add(this.posMoveVec);
+          this.camera.position.add(this.posMoveVec.clone().multiplyScalar(this.INTERP_FRAMES).multiplyScalar(this.TRANSITION_CURVE[this.interpFrames - 1] / this.SUM_TRANSITION_CURVE));
           this.camera.position.setY(this.CAMERA_HEIGHT_OFFSET);
           this.camera.lookAt(this.camera.position.clone().add(this.prevVec.clone().multiplyScalar(this.interpFrames - 1).add(lightMoveVec.clone().multiplyScalar(this.INTERP_FRAMES - this.interpFrames + 1))));
           this.interpFrames--;
