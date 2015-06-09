@@ -55,6 +55,8 @@ class @City extends BaseObject
     prevVec: new THREE.Vector3(0, 0, 0)
     posMoveVec: new THREE.Vector3(0, 0, 0)
     renderSceneObject: () ->
+        prevLightMoveVec = @lights[0].getDirection().clone()
+
         for light in @lights
             light.renderSceneObject()
             if (@isLightOut(light.getSceneObject().position, light.distance/4))
@@ -63,11 +65,12 @@ class @City extends BaseObject
         if @cameraFollow
             lightPos = @lights[0].getSceneObject().position.clone()
             lightMoveVec = @lights[0].getDirection().clone()
+            cameraDistDiff = lightMoveVec.clone().normalize().multiplyScalar(60)
 
-            if @interpFrames == 0 and not THREE.MyHelper.checkVec(lightMoveVec, @prevVec)
+            if @interpFrames == 0 and not THREE.MyHelper.checkVec(lightMoveVec, @prevVec) and not THREE.MyHelper.checkVec(prevLightMoveVec.clone().normalize(), lightMoveVec.clone().normalize())
                 @interpFrames = @INTERP_FRAMES
                 finalLightPos = lightPos.clone().add(lightMoveVec.clone().multiplyScalar(@INTERP_FRAMES))
-                finalLightPos.sub(lightMoveVec.clone().multiplyScalar(60))
+                finalLightPos.sub(cameraDistDiff)
                 @posMoveVec = finalLightPos.clone().sub(@camera.position).divideScalar(@interpFrames)
 
             if @interpFrames > 0
@@ -87,7 +90,7 @@ class @City extends BaseObject
                     @prevVec = lightMoveVec
             else
                 @camera.position.set(lightPos.x, @CAMERA_HEIGHT_OFFSET, lightPos.z)
-                @camera.position.sub(lightMoveVec.setY(0).clone().multiplyScalar(60))
+                @camera.position.sub(cameraDistDiff)
 
     setCameraFollow: (bool) ->
         @cameraFollow = bool
@@ -122,8 +125,8 @@ class @City extends BaseObject
             light = new SmallLight(new THREE.Color(Math.random() * 0xFFFFFF), 1, 2*@gridSize, newPos, @)
             console.log("New light created at " + newPos.x + ", " + newPos.y + ", " + newPos.z + " with " + light.paths.length + " paths")
         else
-            #light.getSceneObject().position.set(newPos.x, newPos.y, newPos.z)
-            #light.generateRandomPaths(newPos)
+            light.getSceneObject().position.set(newPos.x, newPos.y, newPos.z)
+            light.generateRandomPaths(newPos)
 
         return light
 

@@ -1,10 +1,10 @@
 (function() {
   var Path,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
-  this.SmallLight = (function(_super) {
-    __extends(SmallLight, _super);
+  this.SmallLight = (function(superClass) {
+    extend(SmallLight, superClass);
 
     function SmallLight(color, intensity, distance, position, cityInstance) {
       var light, sphere;
@@ -23,10 +23,10 @@
     }
 
     SmallLight.prototype.generateRandomPaths = function(position) {
-      var dirVec, dist, from, i, rotRadians, time, to, x, z, _i, _results;
+      var dirVec, dist, from, i, j, results, rotRadians, time, to, x, z;
       this.paths = [];
-      _results = [];
-      for (i = _i = 0; _i <= 100000; i = ++_i) {
+      results = [];
+      for (i = j = 0; j <= 100000; i = ++j) {
         from = i === 0 ? position : this.paths[i - 1].to;
         time = 60 + (Math.floor(Math.random() * 30));
         dist = (Math.floor(Math.random() * 3) + 1) * 50;
@@ -40,13 +40,13 @@
         to = from.clone();
         to.add(dirVec);
         this.paths[i] = new Path(time, from, to);
-        if (this.cityInstance.isLightOut(to, this.distance)) {
+        if (this.cityInstance.isLightOut(to, this.distance / 2)) {
           break;
         } else {
-          _results.push(void 0);
+          results.push(void 0);
         }
       }
-      return _results;
+      return results;
     };
 
     SmallLight.prototype.getDirection = function() {

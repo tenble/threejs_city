@@ -41,7 +41,7 @@ class @SmallLight extends BaseObject
 
             @paths[i] = new Path(time, from, to)
 
-            if @cityInstance.isLightOut(to, @distance)
+            if @cityInstance.isLightOut(to, @distance/2)
                 break
 
     getDirection: () ->
