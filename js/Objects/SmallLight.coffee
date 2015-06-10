@@ -4,14 +4,16 @@ class @SmallLight extends BaseObject
         @distance = distance
         @cityInstance = cityInstance
 
-        light = new THREE.PointLight(color, intensity, distance)
-        sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshBasicMaterial(
-        	color: color
+        @light = new THREE.PointLight(color, intensity, distance)
+        @sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshLambertMaterial(
+        	#color: color,
+            transparent: true,
+            opacity: 0.5
         ))
 
         @sceneObject = new THREE.Scene()
-        @sceneObject.add(light)
-        @sceneObject.add(sphere)
+        @sceneObject.add(@light)
+        @sceneObject.add(@sphere)
         @sceneObject.position.set(position.x, position.y, position.z)
 
         @generateRandomPaths(position)
@@ -43,6 +45,19 @@ class @SmallLight extends BaseObject
 
             if @cityInstance.isLightOut(to, @distance/2)
                 break
+
+    unFade: () ->
+        if @light.intensity < 1
+            @light.intensity += 0.01
+            @sphere.material.opacity += 0.01
+
+    fade: () ->
+        if @light.intensity > 0
+            @sphere.material.opacity -= 0.01
+            @light.intensity -= 0.01
+            return false
+
+        return true
 
     getDirection: () ->
         return @paths[0].vec

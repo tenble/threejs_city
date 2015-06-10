@@ -51,14 +51,14 @@ class @City extends BaseObject
 
     CAMERA_HEIGHT_OFFSET: 10
     INTERP_FRAMES: 30
-    CAMERA_DIST_BEHIND: 60
+    CAMERA_DIST_BEHIND: 45
     TRANSITION_CURVE: [
-        1, 1, 1, 1, 1,
-        4, 4, 4, 4, 4,
-        16, 16, 16, 16, 16
-        64, 64, 64, 64, 64
-        256, 256, 256, 256, 256
-        1024, 1024, 1024, 1024, 1024
+        2, 4, 6, 8, 10,
+        12, 14, 16, 18, 20,
+        22, 24, 26, 28, 30,
+        30, 28, 26, 24, 22,
+        20, 18, 16, 14, 12,
+        10, 8, 6, 4, 2
     ]
     SUM_TRANSITION_CURVE: City.prototype.TRANSITION_CURVE.reduce((a, b) ->
         return a+b
@@ -71,8 +71,11 @@ class @City extends BaseObject
 
         for light in @lights
             light.renderSceneObject()
-            if (@isLightOut(light.getSceneObject().position, light.distance/4))
-                @createRandomLight(light)
+            if @isLightOut(light.getSceneObject().position, light.distance/4)
+                if light.fade()
+                    @createRandomLight(light)
+            else
+                light.unFade()
 
         if @cameraFollow
             lightPos = @lights[0].getSceneObject().position.clone()

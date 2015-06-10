@@ -33,18 +33,18 @@
       this.mainScene.add(this.camera);
       this.renderer.setSize(this.WIDTH, this.HEIGHT);
       this.$container.append(this.renderer.domElement);
-      this.city = new City(16, 16, 50, 10, 25, 40, 20, 100, 25, 40, this.camera);
+      this.city = new City(16, 16, 50, 20, 15, 30, 20, 100, 15, 30, this.camera);
       this.mainSceneObjects.push(this.city);
       this.mainScene.add(this.city.getSceneObject());
       light = new THREE.AmbientLight(0x404040);
       this.mainScene.add(light);
       objRef = this;
       render = function() {
-        var object, _i, _len, _ref;
+        var i, len, object, ref;
         requestAnimationFrame(render);
-        _ref = objRef.mainSceneObjects;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          object = _ref[_i];
+        ref = objRef.mainSceneObjects;
+        for (i = 0, len = ref.length; i < len; i++) {
+          object = ref[i];
           object.renderSceneObject();
         }
         return objRef.renderer.render(objRef.mainScene, objRef.camera);

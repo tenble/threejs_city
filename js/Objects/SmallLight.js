@@ -7,17 +7,17 @@
     extend(SmallLight, superClass);
 
     function SmallLight(color, intensity, distance, position, cityInstance) {
-      var light, sphere;
       this.paths = [];
       this.distance = distance;
       this.cityInstance = cityInstance;
-      light = new THREE.PointLight(color, intensity, distance);
-      sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshBasicMaterial({
-        color: color
+      this.light = new THREE.PointLight(color, intensity, distance);
+      this.sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshLambertMaterial({
+        transparent: true,
+        opacity: 0.5
       }));
       this.sceneObject = new THREE.Scene();
-      this.sceneObject.add(light);
-      this.sceneObject.add(sphere);
+      this.sceneObject.add(this.light);
+      this.sceneObject.add(this.sphere);
       this.sceneObject.position.set(position.x, position.y, position.z);
       this.generateRandomPaths(position);
     }
@@ -47,6 +47,22 @@
         }
       }
       return results;
+    };
+
+    SmallLight.prototype.unFade = function() {
+      if (this.light.intensity < 1) {
+        this.light.intensity += 0.01;
+        return this.sphere.material.opacity += 0.01;
+      }
+    };
+
+    SmallLight.prototype.fade = function() {
+      if (this.light.intensity > 0) {
+        this.sphere.material.opacity -= 0.01;
+        this.light.intensity -= 0.01;
+        return false;
+      }
+      return true;
     };
 
     SmallLight.prototype.getDirection = function() {

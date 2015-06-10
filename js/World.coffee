@@ -36,10 +36,10 @@ class @World
         @$container.append(@renderer.domElement)
 
         @city = new City(
-            16, 16, 50, 10
-            25, 40, 
+            16, 16, 50, 20
+            15, 30, 
             20, 100, 
-            25, 40,
+            15, 30,
             @camera
         )
         @mainSceneObjects.push(@city)
