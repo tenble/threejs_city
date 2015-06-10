@@ -51,6 +51,7 @@ class @SmallLight extends BaseObject
             @light.intensity += 0.01
             @sphere.material.opacity += 0.01
 
+    #fades a light, returns true if already maximum faded or false otherwise
     fade: () ->
         if @light.intensity > 0
             @sphere.material.opacity -= 0.01
